@@ -97,7 +97,7 @@ its programs into the tc BPF layer instead of XDP.
      --bpf-lb-acceleration=native \\
      --devices=bond0
 
-By default, the layer 4 load-balancer operates in Source NAT (SNAt) mode, meaning replies from
+By default, the layer 4 load-balancer operates in Source NAT (SNAT) mode, meaning replies from
 backends will be returned to the load-balancer which will then perform reverse NAT and
 sends the reply back to the client. Advanced options such as Direct Server Return
 (DSR) are supported as well and described in later sections of this guide.
