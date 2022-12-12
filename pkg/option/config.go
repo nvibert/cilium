@@ -2434,6 +2434,12 @@ func (c *DaemonConfig) TunnelExists() bool {
 	return c.TunnelingEnabled() || c.EnableIPv4EgressGateway
 }
 
+// AreDevicesRequired returns true if the agent needs to attach to the native
+// devices to implement some features.
+func (c *DaemonConfig) AreDevicesRequired() bool {
+	return c.EnableNodePort || c.EnableHostFirewall || c.EnableBandwidthManager
+}
+
 // MasqueradingEnabled returns true if either IPv4 or IPv6 masquerading is enabled.
 func (c *DaemonConfig) MasqueradingEnabled() bool {
 	return c.EnableIPv4Masquerade || c.EnableIPv6Masquerade
@@ -3111,8 +3117,8 @@ func (c *DaemonConfig) Populate(vp *viper.Viper) {
 	c.ToFQDNsProxyPort = vp.GetInt(ToFQDNsProxyPort)
 	c.ToFQDNsPreCache = vp.GetString(ToFQDNsPreCache)
 	c.ToFQDNsEnableDNSCompression = vp.GetBool(ToFQDNsEnableDNSCompression)
-	c.ToFQDNsIdleConnectionGracePeriod = viper.GetDuration(ToFQDNsIdleConnectionGracePeriod)
-	c.FQDNProxyResponseMaxDelay = viper.GetDuration(FQDNProxyResponseMaxDelay)
+	c.ToFQDNsIdleConnectionGracePeriod = vp.GetDuration(ToFQDNsIdleConnectionGracePeriod)
+	c.FQDNProxyResponseMaxDelay = vp.GetDuration(FQDNProxyResponseMaxDelay)
 	c.DNSProxyConcurrencyLimit = vp.GetInt(DNSProxyConcurrencyLimit)
 	c.DNSProxyConcurrencyProcessingGracePeriod = vp.GetDuration(DNSProxyConcurrencyProcessingGracePeriod)
 

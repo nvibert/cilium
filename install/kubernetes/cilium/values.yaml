@@ -334,12 +334,6 @@ bpf:
   # -- Enable BPF clock source probing for more efficient tick retrieval.
   clockProbe: false
 
-  # -- Configure the path to the host boot directory
-  hostBoot: /boot
-
-  # -- Enable host boot directory mount for BPF clock source probing
-  mountHostBoot: true
-
   # -- Enables pre-allocation of eBPF map values. This increases
   # memory usage but can reduce latency.
   preallocateMaps: false
@@ -482,9 +476,10 @@ cni:
   # inside the agent pod.
   hostConfDirMountPath: /host/etc/cni/net.d
 
-# -- Configure how frequently garbage collection should occur for the datapath
+# -- (string) Configure how frequently garbage collection should occur for the datapath
 # connection tracking table.
-# conntrackGCInterval: "0s"
+# @default -- `"0s"`
+conntrackGCInterval: ""
 
 # -- Configure container runtime specific integration.
 containerRuntime:
@@ -499,7 +494,9 @@ containerRuntime:
   # -- Configure the path to the container runtime control socket.
   # socketPath: /path/to/runtime.sock
 
-# crdWaitTimeout: ""
+# -- (string) Configure timeout in which Cilium will exit if CRDs are not available
+# @default -- `"5m"`
+crdWaitTimeout: ""
 
 # -- Tail call hooks for custom eBPF programs.
 customCalls:
@@ -584,6 +581,12 @@ ingressController:
     labels: {}
     # -- Annotations to be added for the shared LB service
     annotations: {}
+    # -- Service type for the shared LB service
+    type: LoadBalancer
+    # -- Configure a specific nodePort for insecure HTTP traffic on the shared LB service
+    insecureNodePort: ~
+    # -- Configure a specific nodePort for secure HTTPS traffic on the shared LB service
+    secureNodePort : ~
 
 gatewayAPI:
   # -- Enable support for Gateway API in cilium
@@ -1241,15 +1244,9 @@ hubble:
 # -- Method to use for identity allocation (`crd` or `kvstore`).
 identityAllocationMode: "crd"
 
-# -- Time to wait before using new identity on endpoint identity change.
-# identityChangeGracePeriod: "5s"
-
-# -- GC interval for security identities.
-# identityGCInterval: "15m0s"
-
-# -- Timeout after which identity expires on lack of heartbeat.
-# identityHeartbeatTimeout: "30m0s"
-
+# -- (string) Time to wait before using new identity on endpoint identity change.
+# @default -- `"5s"`
+identityChangeGracePeriod: ""
 
 # -- Configure whether to install iptables rules to allow for TPROXY
 # (L7 proxy injection), iptables-based masquerading and compatibility
@@ -2122,6 +2119,25 @@ clustermesh:
         tag: "v3.5.4@sha256:795d8660c48c439a7c3764c2330ed9222ab5db5bb524d8d0607cac76f7ba82a3"
         pullPolicy: "Always"
 
+      # -- Specifies the resources for etcd container in the apiserver
+      resources: {}
+      #   requests:
+      #     cpu: 200m
+      #     memory: 256Mi
+      #   limits:
+      #     cpu: 1000m
+      #     memory: 256Mi
+
+      init:
+        # -- Specifies the resources for etcd init container in the apiserver
+        resources: {}
+        #   requests:
+        #     cpu: 100m
+        #     memory: 100Mi
+        #   limits:
+        #     cpu: 100m
+        #     memory: 100Mi
+
     service:
       # -- The type of service used for apiserver access.
       type: NodePort
@@ -2297,6 +2313,14 @@ cgroup:
     # cgroup2 filesystem at the specified `cgroup.hostRoot` volume, and then the
     # volume will be mounted inside the cilium agent pod at the same path.
     enabled: true
+    # -- Init Container Cgroup Automount resource limits & requests
+    resources: {}
+      # limits:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
   # -- Configure cgroup root where cgroup2 filesystem is mounted on the host (see also: `cgroup.autoMount`)
   hostRoot: /run/cilium/cgroupv2
 

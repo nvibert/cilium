@@ -5,6 +5,7 @@ AdapterLimitViaAPI
 Alemayhu
 Alibaba
 Anthos
+Automount
 BIGTCP
 BPF
 Bertin
@@ -485,7 +486,6 @@ herokuapp
 hexData
 hoc
 hostAliases
-hostBoot
 hostConfDirMountPath
 hostFirewall
 hostLegacyRouting
@@ -532,6 +532,7 @@ inlined
 inlines
 inlining
 inodes
+insecureNodePort
 installIptablesRules
 installNoConntrackIptablesRules
 installRoutes
@@ -688,7 +689,6 @@ monitorAggregation
 monitorFlags
 monitorInterval
 mountCgroup
-mountHostBoot
 mountPath
 mov
 mul
@@ -886,6 +886,7 @@ seccomp
 secretName
 secretsBackend
 secretsNamespace
+secureNodePort
 securityContext
 selftest
 selftests

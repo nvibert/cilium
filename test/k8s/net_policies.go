@@ -65,6 +65,7 @@ var _ = SkipDescribeIf(func() bool {
 
 		daemonCfg = map[string]string{
 			"tls.secretsBackend": "k8s",
+			"debug.verbose":      "envoy",
 		}
 		ciliumFilename = helpers.TimestampFilename("cilium.yaml")
 		DeployCiliumOptionsAndDNS(kubectl, ciliumFilename, daemonCfg)
@@ -136,7 +137,7 @@ var _ = SkipDescribeIf(func() bool {
 			_ = kubectl.Exec(cmd)
 		})
 
-		It("TLS policy", func() {
+		SkipItIf(helpers.SkipQuarantined, "TLS policy", func() {
 			By("Testing L7 Policy with TLS")
 
 			res := kubectl.CreateSecret("generic", "user-agent", "default", "--from-literal=user-agent=CURRL")
@@ -150,6 +151,9 @@ var _ = SkipDescribeIf(func() bool {
 
 			res = kubectl.CopyFileToPod(namespaceForTest, appPods[helpers.App2], TLSCaCerts, "/cacert.pem")
 			res.ExpectSuccess("Cannot copy certs to %s", appPods[helpers.App2])
+
+			res = kubectl.CopyFileToPod(namespaceForTest, appPods[helpers.App3], TLSCaCerts, "/cacert.pem")
+			res.ExpectSuccess("Cannot copy certs to %s", appPods[helpers.App3])
 
 			_, err := kubectl.CiliumPolicyAction(
 				namespaceForTest, l7PolicyTLS, helpers.KubectlApply, helpers.HelperTimeout)
@@ -166,6 +170,15 @@ var _ = SkipDescribeIf(func() bool {
 				helpers.CurlWithRetries("-4 %s https://www.lyft.com:443/private", 5, true, "-v --cacert /cacert.pem"))
 			res.ExpectFailWithError("403 Forbidden", "Unexpected connection from %q to 'https://www.lyft.com:443/private'",
 				appPods[helpers.App2])
+
+			By("Testing L7 Policy with TLS without HTTP rules")
+
+			res = kubectl.ExecPodCmd(
+				namespaceForTest, appPods[helpers.App3],
+				helpers.CurlWithRetries("-4 %s https://www.lyft.com:443/privacy", 5, true, "-v --cacert /cacert.pem"))
+			res.ExpectSuccess("Cannot connect from %q to 'https://www.lyft.com:443/privacy'",
+				appPods[helpers.App3])
+
 		}, 500)
 
 		It("Invalid Policy report status correctly", func() {

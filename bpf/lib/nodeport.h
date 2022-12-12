@@ -873,7 +873,7 @@ static __always_inline int nodeport_lb6(struct __ctx_buff *ctx,
 			return ret;
 	}
 
-	svc = lb6_lookup_service(&key, false);
+	svc = lb6_lookup_service(&key, false, false);
 	if (svc) {
 		const bool skip_l3_xlate = DSR_ENCAP_MODE == DSR_ENCAP_IPIP;
 
@@ -1151,8 +1151,11 @@ int tail_rev_nodeport_lb6(struct __ctx_buff *ctx)
 	ret = rev_nodeport_lb6(ctx, &ifindex, &ext_err);
 	if (IS_ERR(ret))
 		goto drop;
-	if (!revalidate_data(ctx, &data, &data_end, &ip6))
+	if (!revalidate_data(ctx, &data, &data_end, &ip6)) {
+		ret = DROP_INVALID;
 		goto drop;
+	}
+
 	if (is_v4_in_v6((union v6addr *)&ip6->saddr)) {
 		int ret2;
 
@@ -1811,7 +1814,7 @@ static __always_inline int nodeport_lb4(struct __ctx_buff *ctx,
 			return ret;
 	}
 
-	svc = lb4_lookup_service(&key, false);
+	svc = lb4_lookup_service(&key, false, false);
 	if (svc) {
 		const bool skip_l3_xlate = DSR_ENCAP_MODE == DSR_ENCAP_IPIP;
 

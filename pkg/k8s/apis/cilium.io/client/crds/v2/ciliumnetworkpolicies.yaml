@@ -231,7 +231,8 @@ spec:
                     toEntities:
                       description: ToEntities is a list of special entities to which
                         the endpoint subject to the rule is allowed to initiate connections.
-                        Supported entities are `world`, `cluster` and `host`
+                        Supported entities are `world`, `cluster`,`host`,`remote-node`,`kube-apiserver`,
+                        `init`, `health`,`unmanaged` and `all`.
                       items:
                         description: Entity specifies the class of receiver/sender
                           endpoints that do not have individual identities.  Entities
@@ -673,6 +674,13 @@ spec:
                                   Key-value pair rules apply.
                                 type: string
                             type: object
+                          serverNames:
+                            description: ServerNames is a list of allowed TLS SNI
+                              values. If not empty, then TLS must be present and one
+                              of the provided SNIs must be indicated in the TLS handshake.
+                            items:
+                              type: string
+                            type: array
                           terminatingTLS:
                             description: TerminatingTLS is the TLS context for the
                               connection terminated by the L7 proxy.  For egress policy
@@ -1051,7 +1059,8 @@ spec:
                     toEntities:
                       description: ToEntities is a list of special entities to which
                         the endpoint subject to the rule is allowed to initiate connections.
-                        Supported entities are `world`, `cluster` and `host`
+                        Supported entities are `world`, `cluster`,`host`,`remote-node`,`kube-apiserver`,
+                        `init`, `health`,`unmanaged` and `all`.
                       items:
                         description: Entity specifies the class of receiver/sender
                           endpoints that do not have individual identities.  Entities
@@ -1949,6 +1958,13 @@ spec:
                                   Key-value pair rules apply.
                                 type: string
                             type: object
+                          serverNames:
+                            description: ServerNames is a list of allowed TLS SNI
+                              values. If not empty, then TLS must be present and one
+                              of the provided SNIs must be indicated in the TLS handshake.
+                            items:
+                              type: string
+                            type: array
                           terminatingTLS:
                             description: TerminatingTLS is the TLS context for the
                               connection terminated by the L7 proxy.  For egress policy
@@ -2584,8 +2600,8 @@ spec:
                       toEntities:
                         description: ToEntities is a list of special entities to which
                           the endpoint subject to the rule is allowed to initiate
-                          connections. Supported entities are `world`, `cluster` and
-                          `host`
+                          connections. Supported entities are `world`, `cluster`,`host`,`remote-node`,`kube-apiserver`,
+                          `init`, `health`,`unmanaged` and `all`.
                         items:
                           description: Entity specifies the class of receiver/sender
                             endpoints that do not have individual identities.  Entities
@@ -3036,6 +3052,14 @@ spec:
                                     Key-value pair rules apply.
                                   type: string
                               type: object
+                            serverNames:
+                              description: ServerNames is a list of allowed TLS SNI
+                                values. If not empty, then TLS must be present and
+                                one of the provided SNIs must be indicated in the
+                                TLS handshake.
+                              items:
+                                type: string
+                              type: array
                             terminatingTLS:
                               description: TerminatingTLS is the TLS context for the
                                 connection terminated by the L7 proxy.  For egress
@@ -3420,8 +3444,8 @@ spec:
                       toEntities:
                         description: ToEntities is a list of special entities to which
                           the endpoint subject to the rule is allowed to initiate
-                          connections. Supported entities are `world`, `cluster` and
-                          `host`
+                          connections. Supported entities are `world`, `cluster`,`host`,`remote-node`,`kube-apiserver`,
+                          `init`, `health`,`unmanaged` and `all`.
                         items:
                           description: Entity specifies the class of receiver/sender
                             endpoints that do not have individual identities.  Entities
@@ -4331,6 +4355,14 @@ spec:
                                     Key-value pair rules apply.
                                   type: string
                               type: object
+                            serverNames:
+                              description: ServerNames is a list of allowed TLS SNI
+                                values. If not empty, then TLS must be present and
+                                one of the provided SNIs must be indicated in the
+                                TLS handshake.
+                              items:
+                                type: string
+                              type: array
                             terminatingTLS:
                               description: TerminatingTLS is the TLS context for the
                                 connection terminated by the L7 proxy.  For egress

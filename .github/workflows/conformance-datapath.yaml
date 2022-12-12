@@ -186,20 +186,13 @@ jobs:
             fi
 
       - name: Run tests
-        uses: cilium/little-vm-helper@9bb7d6016e00968adff49dae192a0be87d9c3aef
+        uses: cilium/little-vm-helper@2a076423707ff588c2b0ed676d835e779b4c4af4
         with:
           test-name: datapath-conformance
-          image: kind
-          lvh-version: 'v0.0.1'
           image-version: ${{ matrix.kernel }}
           host-mount: ./
           cmd: |
-            set -eux
-
-            echo 'nameserver 1.1.1.1' > /etc/resolv.conf
-
             cd /host/
-
 
             ./contrib/scripts/kind.sh "" 3 "" "" "${{ env.KUBE_PROXY }}"
             ./cilium-cli install --wait \
@@ -218,12 +211,14 @@ jobs:
             --nodes-without-cilium=kind-worker3 --helm-set-string="kubeProxyReplacement=${{ env.KPR }}"
 
             ./cilium-cli status --wait
-            ./cilium-cli connectivity test --datapath
-            ./cilium-cli connectivity test -t -d
+            ./cilium-cli connectivity test --datapath --collect-sysdump-on-failure \
+              --sysdump-output-filename "cilium-sysdump-${{ matrix.kernel }}-<ts>"
+            ./cilium-cli connectivity test --collect-sysdump-on-failure \
+              --sysdump-output-filename "cilium-sysdump-${{ matrix.kernel }}-<ts>"
 
       - name: Fetch artifacts
         if: ${{ !success() }}
-        uses: cilium/little-vm-helper@9bb7d6016e00968adff49dae192a0be87d9c3aef
+        uses: cilium/little-vm-helper@2a076423707ff588c2b0ed676d835e779b4c4af4
         with:
           provision: 'false'
           cmd: |
@@ -231,14 +226,14 @@ jobs:
             kubectl get pods --all-namespaces -o wide
             ./cilium-cli status
             mkdir -p cilium-sysdumps
-            ./cilium-cli sysdump --output-filename cilium-sysdumps/cilium-sysdump-datapath-conformance-${{ matrix.kernel }}
+            ./cilium-cli sysdump --output-filename cilium-sysdump-${{ matrix.kernel }}-final
 
       - name: Upload artifacts
         if: ${{ !success() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: cilium-sysdumps
-          path: ./cilium-sysdumps
+          path: cilium-sysdump-*.zip
           retention-days: 5
 
       - name: Set commit status to success

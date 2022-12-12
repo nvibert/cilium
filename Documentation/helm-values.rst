@@ -93,10 +93,6 @@
      - Configure the maximum number of entries in the TCP connection tracking table.
      - int
      - ``524288``
-   * - bpf.hostBoot
-     - Configure the path to the host boot directory
-     - string
-     - ``"/boot"``
    * - bpf.hostLegacyRouting
      - Configure whether direct routing mode should route traffic via host stack (true) or directly and more efficiently out of BPF (false) if the kernel supports it. The latter has the implication that it will also bypass netfilter in the host namespace.
      - bool
@@ -129,10 +125,6 @@
      - Configure the typical time between monitor notifications for active connections.
      - string
      - ``"5s"``
-   * - bpf.mountHostBoot
-     - Enable host boot directory mount for BPF clock source probing
-     - bool
-     - ``true``
    * - bpf.natMax
      - Configure the maximum number of entries for the NAT table.
      - int
@@ -180,11 +172,15 @@
    * - cgroup
      - Configure cgroup related configuration
      - object
-     - ``{"autoMount":{"enabled":true},"hostRoot":"/run/cilium/cgroupv2"}``
+     - ``{"autoMount":{"enabled":true,"resources":{}},"hostRoot":"/run/cilium/cgroupv2"}``
    * - cgroup.autoMount.enabled
      - Enable auto mount of cgroup2 filesystem. When ``autoMount`` is enabled, cgroup2 filesystem is mounted at ``cgroup.hostRoot`` path on the underlying host and inside the cilium agent pod. If users disable ``autoMount``\ , it's expected that users have mounted cgroup2 filesystem at the specified ``cgroup.hostRoot`` volume, and then the volume will be mounted inside the cilium agent pod at the same path.
      - bool
      - ``true``
+   * - cgroup.autoMount.resources
+     - Init Container Cgroup Automount resource limits & requests
+     - object
+     - ``{}``
    * - cgroup.hostRoot
      - Configure cgroup root where cgroup2 filesystem is mounted on the host (see also: ``cgroup.autoMount``\ )
      - string
@@ -213,6 +209,14 @@
      - Clustermesh API server etcd image.
      - object
      - ``{"override":null,"pullPolicy":"Always","repository":"quay.io/coreos/etcd","tag":"v3.5.4@sha256:795d8660c48c439a7c3764c2330ed9222ab5db5bb524d8d0607cac76f7ba82a3"}``
+   * - clustermesh.apiserver.etcd.init.resources
+     - Specifies the resources for etcd init container in the apiserver
+     - object
+     - ``{}``
+   * - clustermesh.apiserver.etcd.resources
+     - Specifies the resources for etcd container in the apiserver
+     - object
+     - ``{}``
    * - clustermesh.apiserver.extraEnv
      - Additional clustermesh-apiserver environment variables.
      - list
@@ -393,6 +397,10 @@
      - Configure the log file for CNI logging with retention policy of 7 days. Disable CNI file logging by setting this field to empty explicitly.
      - string
      - ``"/var/run/cilium/cilium-cni.log"``
+   * - conntrackGCInterval
+     - Configure how frequently garbage collection should occur for the datapath connection tracking table.
+     - string
+     - ``"0s"``
    * - containerRuntime
      - Configure container runtime specific integration.
      - object
@@ -401,6 +409,10 @@
      - Enables specific integrations for container runtimes. Supported values: - containerd - crio - docker - none - auto (automatically detect the container runtime)
      - string
      - ``"none"``
+   * - crdWaitTimeout
+     - Configure timeout in which Cilium will exit if CRDs are not available
+     - string
+     - ``"5m"``
    * - customCalls
      - Tail call hooks for custom eBPF programs.
      - object
@@ -1193,6 +1205,10 @@
      - Method to use for identity allocation (\ ``crd`` or ``kvstore``\ ).
      - string
      - ``"crd"``
+   * - identityChangeGracePeriod
+     - Time to wait before using new identity on endpoint identity change.
+     - string
+     - ``"5s"``
    * - image
      - Agent container image.
      - object
@@ -1236,11 +1252,15 @@
    * - ingressController.service
      - Load-balancer service in shared mode. This is a single load-balancer service for all Ingress resources.
      - object
-     - ``{"annotations":{},"labels":{},"name":"cilium-ingress"}``
+     - ``{"annotations":{},"insecureNodePort":null,"labels":{},"name":"cilium-ingress","secureNodePort":null,"type":"LoadBalancer"}``
    * - ingressController.service.annotations
      - Annotations to be added for the shared LB service
      - object
      - ``{}``
+   * - ingressController.service.insecureNodePort
+     - Configure a specific nodePort for insecure HTTP traffic on the shared LB service
+     - string
+     - ``nil``
    * - ingressController.service.labels
      - Labels to be added for the shared LB service
      - object
@@ -1249,6 +1269,14 @@
      - Service name
      - string
      - ``"cilium-ingress"``
+   * - ingressController.service.secureNodePort
+     - Configure a specific nodePort for secure HTTPS traffic on the shared LB service
+     - string
+     - ``nil``
+   * - ingressController.service.type
+     - Service type for the shared LB service
+     - string
+     - ``"LoadBalancer"``
    * - installIptablesRules
      - Configure whether to install iptables rules to allow for TPROXY (L7 proxy injection), iptables-based masquerading and compatibility with kube-proxy.
      - bool
